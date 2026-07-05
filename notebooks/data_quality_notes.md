@@ -46,3 +46,36 @@
 - weight_pct sums to ~100% per fund for all funds — clean, no broken portfolios
 - AMFI code validation: all 34 codes valid, exist in fund_master — 0 mismatches
 - NOTE: only 34 of 40 funds have holdings data — 6 funds (likely newer/smaller) have no holdings entries at all. Not invalid data, just incomplete coverage.
+## 10_benchmark_indices.csv
+- Shape: (8050, 3) — 7 indices, daily values, Jan 2022 - May 2026
+- date stored as text (str) — recurring issue
+- ZERO missing values
+- IMPORTANT: benchmark names in fund_master.csv do NOT match index_name values here
+  - fund_master uses full names (e.g. "NIFTY Midcap 50 TRI")
+  - benchmark file uses short codes (e.g. "NIFTY_MIDCAP150")
+  - Some may be naming-format mismatches; others (Midcap 50 vs Midcap150) may be genuinely different indices
+  - Needs a mapping/lookup before any fund-vs-benchmark comparison can be done
+  ## nav_history.csv — Cleaning steps (Day 2)
+- Converted date column from str to datetime64
+- Sorted by amfi_code, then date
+- Checked for duplicate (amfi_code, date) pairs: 0 found, no removal needed
+- Gap analysis: only 1-day (weekday) and 3-day (weekend) gaps exist — no holiday gaps, suggests synthetic data
+- Forward-filled to create complete daily calendar per fund: 46,000 → 64,320 rows
+- Weekend rows now carry forward the last trading day's NAV 
+
+NAV validation: 0 values <= 0. Range: ₹26.14 to ₹4268.55 — realistic, no anomalies.
+- nav_history.csv cleaning COMPLETE
+
+## scheme_performance.csv — Cleaning steps (Day 2)
+- All return values already numeric (float64), no conversion needed
+- expense_ratio_pct: 0 funds outside 0.1%-2.5% range — fully compliant
+- Returns (1yr/3yr/5yr) all positive, realistic ranges (4-25%), no anomalies
+- scheme_performance.csv cleaning COMPLETE — no issues found
+
+## Remaining 7 files — date columns standardized (Day 2)
+- fund_master: launch_date converted to datetime
+- aum_by_fund_house: date converted to datetime
+- monthly_sip_inflows, category_inflows, industry_folio_count: month converted to datetime (YYYY-MM format)
+- portfolio_holdings: portfolio_date converted to datetime
+- benchmark_indices: date converted to datetime
+- All 10 cleaned CSVs now saved in data/processed/ — DELIVERABLE COMPLETE
